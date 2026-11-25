@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import AuthBar from './components/AuthBar';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -488,6 +489,9 @@ export default function DeutschApp({
   return (
     <main className="min-h-screen bg-slate-50 p-6 sm:p-10 text-slate-900">
       <div className="mx-auto max-w-5xl">
+        <div className="mb-4">
+  <AuthBar />
+</div>
         {/* Header */}
         <header className="mb-8 border-b border-slate-200 pb-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
