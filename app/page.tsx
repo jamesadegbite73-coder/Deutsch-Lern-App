@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import DeutschApp from './DeutschApp';
-
+export const dynamic = 'force-dynamic';
 export default async function HomePage() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
