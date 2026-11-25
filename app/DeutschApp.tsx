@@ -193,6 +193,62 @@ export default function DeutschApp({
   const [words, setWords] = useState<Word[]>(initialWords);
   const [liveGrammarQuestions, setLiveGrammarQuestions] =
     useState<GrammarQuestion[]>(grammarQuestions);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [learnedWordIds, setLearnedWordIds] = useState<number[]>([]);
+  const [quizScores, setQuizScores] = useState<{ quiz: string; score: number; total: number; date: string }[]>([]);
+
+  const isAdmin = userEmail === 'jamesadegbite73@gmail.com';
+  const isLoggedIn = Boolean(userId);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadSessionAndProgress() {
+      const { data } = await supabase.auth.getUser();
+      const currentUser = data.user ?? null;
+      if (!active) return;
+
+      setUserId(currentUser?.id ?? null);
+      setUserEmail(currentUser?.email ?? null);
+
+      if (!currentUser) {
+        setLearnedWordIds([]);
+        setQuizScores([]);
+        return;
+      }
+
+      const { data: progress } = await supabase
+        .from('user_progress')
+        .select('learned_word_ids, quiz_scores')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+
+      if (active && progress) {
+        setLearnedWordIds(progress.learned_word_ids ?? []);
+        setQuizScores(Array.isArray(progress.quiz_scores) ? progress.quiz_scores : []);
+      }
+    }
+
+    loadSessionAndProgress();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const nextUser = session?.user ?? null;
+      setUserId(nextUser?.id ?? null);
+      setUserEmail(nextUser?.email ?? null);
+      if (!nextUser) {
+        setLearnedWordIds([]);
+        setQuizScores([]);
+      } else {
+        loadSessionAndProgress();
+      }
+    });
+
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
   const [grammarError, setGrammarError] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string>('ALL');
   const [selectedLessonId, setSelectedLessonId] = useState<string>('ALL');
@@ -585,6 +641,7 @@ export default function DeutschApp({
               >
                 Synonym Quiz ({allSynonymWords.length})
               </button>
+             {isAdmin && ( 
               <button
                 onClick={() => setMode('add')}
                 className={`rounded-lg px-3 py-2 transition ${
@@ -595,9 +652,20 @@ export default function DeutschApp({
               >
                 + Add Word
               </button>
+      )}
             </div>
           </div>
-
+{!isLoggedIn ? (
+  <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+    <h2 className="text-xl font-bold text-slate-900">
+      Mitgliederbereich – Bitte anmelden
+    </h2>
+    <p className="mt-2 text-sm text-slate-600">
+      Melde dich oben mit deinem Konto an oder erstelle ein neues Konto, um Vokabeln, Grammatik und Tests zu nutzen.
+    </p>
+  </div>
+) : (
+  <>
           {/* Filters & Search Bar */}
           {mode !== 'add' && mode !== 'grammarNotes' && (
             <div className="mt-6 space-y-3">
@@ -1491,6 +1559,8 @@ export default function DeutschApp({
             </div>
           </form>
         )}
+          </>
+  )}
       </div>
     </main>
   );
