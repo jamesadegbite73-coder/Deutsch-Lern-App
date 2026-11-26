@@ -759,7 +759,6 @@ export default function DeutschApp({
                       : 'Show Full Study Notes on All Cards'}
                   </button>
                 </div>
-              )}
             </div>
         </header>
         {/* MODE: A1 & A2 GRAMMAR NOTES */}
