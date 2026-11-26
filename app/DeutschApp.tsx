@@ -1426,7 +1426,7 @@ export default function DeutschApp({
         )}
 
         {/* MODE 7: TEACHER FORM TO ADD NEW VOCABULARY OR SYNONYMS */}
-        {mode === 'add' && (
+        {isAdmin && mode === 'add' && (
           <form
             onSubmit={handleAddWord}
             className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm"
