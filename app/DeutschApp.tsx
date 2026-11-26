@@ -761,7 +761,6 @@ export default function DeutschApp({
                 </div>
               )}
             </div>
-          
         </header>
 
         {/* MODE: A1 & A2 GRAMMAR NOTES */}
